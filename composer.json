@@ -1,0 +1,18 @@
+{
+  "name": "juanmalonso/nbsflow-core",
+  "description": "Description of project juanmalonso/nbsflow-core",
+  "type": "library",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Juan Manuel Alonso Vallovera",
+      "email": "manialonso@gmail.com"
+    }
+  ],
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "Nubesys\\Flow\\Core\\": "src/"
+    }
+  }
+}
