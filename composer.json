@@ -12,7 +12,8 @@
   "require": {},
   "autoload": {
     "psr-4": {
-      "Nubesys\\Flow\\Core\\": "src/"
+      "Nubesys\\Flow\\Core\\": "src/Core/",
+      "Nubesys\\Flow\\Docker\\": "src/Docker/"
     }
   }
 }

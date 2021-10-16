@@ -11,11 +11,6 @@ class Register implements ArrayAccess
         $this->container = array();
     }
 
-    public function prueba(){
-
-        var_dump("asdf");
-    }
-
     public function offsetSet($offset, $value) {
         if (is_null($offset)) {
             $this->container[] = $value;
@@ -37,8 +32,14 @@ class Register implements ArrayAccess
     }
 
     public function get($key){
+        
+        if(!stristr($key, '.') === FALSE){
+            
+            return $this->getDot($key);
+        }else{
 
-        return isset($this->container[$key]) ? $this->container[$key] : null;
+            return isset($this->container[$key]) ? $this->container[$key] : null;
+        }
     }
 
     public function getDot($keyDot){
@@ -50,7 +51,13 @@ class Register implements ArrayAccess
 
     public function has($key){
 
-        return isset($this->container[$key]) ? true : false;
+        if(!stristr($key, '.') === FALSE){
+
+            return $this->hasDot($key);
+        }else{
+
+            return isset($this->container[$key]) ? true : false;
+        }
     }
 
     public function hasDot($keyDot){
@@ -73,7 +80,14 @@ class Register implements ArrayAccess
         if (is_null($key)) {
             $this->container[] = $value;
         } else {
-            $this->container[$key] = $value;
+
+            if(!stristr($key, '.') === FALSE){
+
+                $this->setDot($key, $value);
+            }else{
+                
+                $this->container[$key] = $value;
+            }
         }
     }
 
@@ -96,20 +110,10 @@ class Register implements ArrayAccess
         return $this->container;
     }
 
-    public function strAppend($key, $value){
-
-        if(!isset($this->container[$key])){
-
-            $this->container[$key] = '';
-        }
-
-        if (is_null($key)) {
-            $this->container[] = $value;
-        } else {
-            $this->container[$key] .= $value;
-        }
-    }
-
+    public function append($key, $value){}
+    
+    public function prepend($key, $value){}
+    
     public function keys(){
 
         return array_keys($this->container);
