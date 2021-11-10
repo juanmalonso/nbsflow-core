@@ -1,0 +1,58 @@
+{
+    "nodes": [
+        {
+            "reference": "NodeA",
+            "info": "The Node A, aditional info!",
+            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Basic\\InOut",
+            "properties": {},
+            "mapping": {}
+        },
+        {
+            "reference": "NodeB",
+            "info": "The Node B, aditional info!",
+            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Basic\\InOut",
+            "properties": {},
+            "mapping": {}
+        }
+    ],
+    "connections": [
+        {
+            "node": "NodeA",
+            "port": "in",
+            "sources": [
+                {
+                    "start": true
+                }
+            ]
+        },
+        {
+            "node": "NodeA",
+            "port": "out",
+            "targets": [
+                {
+                    "node": "NodeB",
+                    "port": "in"
+                }
+            ]
+        },
+        {
+            "node": "NodeB",
+            "port": "in",
+            "sources": [
+                {
+                    "node": "NodeA",
+                    "port": "out"
+                }
+            ]
+        },
+        {
+            "node": "NodeB",
+            "port": "out",
+            "targets": [
+                {
+                    "end": true
+                }
+            ]
+        }
+    ]
+}

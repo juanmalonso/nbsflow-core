@@ -5,9 +5,20 @@ class Common
 {
     protected $container;
 
+    protected $localScope;
+    protected $localScopeSetters;
+
     public function __construct($p_container){
 
-        $this->container    = $p_container;
+        $this->container            = $p_container;
+
+        $this->localScope           = new \Nubesys\Flow\Core\Register();
+        $this->localScopeSetters    = array();
+    }
+
+    protected function setLocalScopeSetters($p_setters){
+
+        $this->localScopeSetters    = $p_setters;
     }
 
     //SCOPE MAGIC FUNCTION
@@ -19,18 +30,44 @@ class Common
         switch($name){
 
             case "get" :
-                $result     = $this->container->get('globalScope')->get($arguments[0]);
+            
+                if($this->localScope->has($arguments[0])){
+
+                    $result     = $this->localScope->get($arguments[0]);
+                }else{
+
+                    $result     = $this->container->get('globalScope')->get($arguments[0]);
+                }
+                
                 break;
             case "set" :
-                $result     = $this->container->get('globalScope')->set($arguments[0], $arguments[1]);
+
+                if(\in_array(explode('.', $arguments[0])[0], $this->localScopeSetters)){
+
+                    $result     = $this->localScope->set($arguments[0], $arguments[1]);
+                }else{
+
+                    $result     = $this->container->get('globalScope')->set($arguments[0],$arguments[1]);
+                }
+                                
                 break;
             case "has" :
-                $result     = $this->container->get('globalScope')->has($arguments[0]);
+                
+                if($this->localScope->has($arguments[0])){
+
+                    $result     = true;
+                }else{
+
+                    $result     = $this->container->get('globalScope')->get($arguments[0]);
+                }
+
                 break;
         }
 
         return $result;
     }
+
+    //SESSION
 
     //LOGGS
 
@@ -41,7 +78,7 @@ class Common
 
         if(file_exists($p_path)){
 
-            return json_decode(file_get_contents($p_path));
+            return json_decode(file_get_contents($p_path), true);
         }else{
 
             return false;
@@ -50,7 +87,12 @@ class Common
 
     //HTTP
 
-    //
+    //STRUCT
+    public static function isValidJson($p_string){
+
+        return ((is_string($p_string) && (is_object(json_decode($p_string)) || is_array(json_decode($p_string))))) ? true : false;
+    }
+    
 }
 
 ?>

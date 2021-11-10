@@ -1,15 +1,17 @@
 <?php
 namespace Nubesys\Flow\Core\App;
 
-use Nubesys\Flow\Core\App\AppCommon;
+use Nubesys\Flow\Core\App\App;
 
-class FlowAppCommon extends AppCommon
+class FlowApp extends App
 {
     protected $primaryFlow;
     
     public function __construct($p_container){
 
         parent::__construct($p_container);
+
+        $this->localScopeSetters    = array("primaryFlow");
     }
 
     protected function loadPrimaryFlow(){
@@ -20,9 +22,9 @@ class FlowAppCommon extends AppCommon
 
                 if($prefix == $this->get("env.NBS_FLOW_LIBRARY")){
 
-                    $primaryFlowDefinition              = $this->fileGetJsonContent($values[0] . "../json/" . $this->get("env.NBS_FLOW_PATH") . ".json");
+                    $primaryFlowSchema                                  = $this->fileGetJsonContent($values[0] . "../../flows/" . $this->get("env.NBS_FLOW_PATH") . ".json");
 
-                    var_dump($primaryFlowDefinition);
+                    $this->set("primaryFlow", new \Nubesys\Flow\Core\Flow\Flow($this->container, $primaryFlowSchema));
                 }
             }
         }
