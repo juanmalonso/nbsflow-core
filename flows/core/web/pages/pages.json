@@ -1,0 +1,38 @@
+{
+    "nodes": [
+        {
+            "reference": "WebPage",
+            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Web\\WebPage",
+            "properties": {
+                "template":"default",
+                "jssources":[
+                    "https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@latest/dist/svg.min.js",
+                    "https://cdn.jsdelivr.net/npm/@jaames/iro@5"
+                ],
+                "csssources":[
+                ]
+            },
+            "mapping": {}
+        }
+    ],
+    "connections": [
+        {
+            "node": "WebPage",
+            "port": "in",
+            "sources": [
+                {
+                    "start": true
+                }
+            ]
+        },
+        {
+            "node": "WebPage",
+            "port": "out",
+            "targets": [
+                {
+                    "end": true
+                }
+            ]
+        }
+    ]
+}

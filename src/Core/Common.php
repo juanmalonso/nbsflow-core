@@ -7,18 +7,19 @@ class Common
 
     protected $localScope;
     protected $localScopeSetters;
+    protected $localScopeProperties;
 
-    public function __construct($p_container){
+    public function __construct($p_container, $p_initialLocalScope = array()){
 
         $this->container            = $p_container;
 
-        $this->localScope           = new \Nubesys\Flow\Core\Register();
+        $this->localScope           = new \Nubesys\Flow\Core\Register($p_initialLocalScope);
         $this->localScopeSetters    = array();
     }
 
-    protected function setLocalScopeSetters($p_setters){
+    protected function setLocalScopeSetter($p_setter){
 
-        $this->localScopeSetters    = $p_setters;
+        $this->localScopeSetters[]          = $p_setter;
     }
 
     //SCOPE MAGIC FUNCTION
@@ -62,6 +63,11 @@ class Common
                 }
 
                 break;
+            case "find" :
+
+                $result         = array_merge($this->localScope->find($arguments[0]), $this->container->get('globalScope')->find($arguments[0]));
+
+                break;
         }
 
         return $result;
@@ -69,7 +75,7 @@ class Common
 
     //SESSION
 
-    //LOGGS
+    //LOGS
 
     //CACHE
 
@@ -88,9 +94,49 @@ class Common
     //HTTP
 
     //STRUCT
-    public static function isValidJson($p_string){
+    protected static function isValidJson($p_string){
 
         return ((is_string($p_string) && (is_object(json_decode($p_string)) || is_array(json_decode($p_string))))) ? true : false;
+    }
+
+    //URI PARSER
+    protected static function parseUri($p_uri){
+
+        $result = array();
+
+        $uriPartes                          = explode("/", $p_uri);
+
+        if($uriPartes[0] == ""){
+
+            array_shift($uriPartes);
+        }
+
+        if($uriPartes[count($uriPartes) - 1] == ""){
+
+            array_pop($uriPartes);
+        }
+
+        for($p = 0; $p < count($uriPartes); $p++){
+
+            if(strpos($uriPartes[$p], ":") !== false){
+
+                $paramPartes                = explode(":", $uriPartes[$p]);
+
+                if(strpos($paramPartes[1], ",") !== false){
+
+                    $result[$paramPartes[0]]    = explode(",", $paramPartes[1]);
+                }else{
+
+                    $result[$paramPartes[0]]    = $paramPartes[1];
+                }
+                
+            }else{
+
+                $result[$p]                 = $uriPartes[$p];
+            }
+        }
+
+        return $result;
     }
     
 }

@@ -1,23 +1,36 @@
 {
+    "properties":{},
+    "mapping":{},
     "nodes": [
         {
-            "reference": "NodeA",
-            "info": "The Node A, aditional info!",
-            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Basic\\InOut",
-            "properties": {},
+            "reference": "RouterEntries",
+            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\HttpRouter\\HttpRouterEntries",
+            "properties": {
+                "routes":[
+                    {
+                        "match": {
+                            "pathRegex":"^\\/(loginx1).*$"
+                        },
+                        "flow": {
+                            "library": "Nubesys\\Flow\\Core\\",
+                            "path": "auth/web/pages/loginx1",
+                            "params": {}
+                        }
+                    }
+                ]
+            },
             "mapping": {}
         },
         {
-            "reference": "NodeB",
-            "info": "The Node B, aditional info!",
-            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Basic\\InOut",
+            "reference": "PathMatcher",
+            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Basic\\RegexMatcher",
             "properties": {},
             "mapping": {}
         }
     ],
     "connections": [
         {
-            "node": "NodeA",
+            "node": "RouterEntries",
             "port": "in",
             "sources": [
                 {
@@ -26,28 +39,48 @@
             ]
         },
         {
-            "node": "NodeA",
-            "port": "out",
+            "node": "RouterEntries",
+            "port": "pathRegex",
             "targets": [
                 {
-                    "node": "NodeB",
+                    "node": "PathMatcher",
                     "port": "in"
                 }
             ]
         },
         {
-            "node": "NodeB",
+            "node": "PathMatcher",
             "port": "in",
             "sources": [
                 {
-                    "node": "NodeA",
+                    "node": "RouterEntries",
+                    "port": "pathRegex"
+                }
+            ]
+        },
+        {
+            "node": "PathMatcher",
+            "port": "out",
+            "targets": [
+                {
+                    "node": "RouterEntries",
+                    "port": "result"
+                }
+            ]
+        },
+        {
+            "node": "RouterEntries",
+            "port": "result",
+            "sources": [
+                {
+                    "node": "PathMatcher",
                     "port": "out"
                 }
             ]
         },
         {
-            "node": "NodeB",
-            "port": "out",
+            "node": "RouterEntries",
+            "port": "end",
             "targets": [
                 {
                     "end": true

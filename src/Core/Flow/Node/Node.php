@@ -9,7 +9,15 @@ class Node extends Common {
         
         parent::__construct($p_container);
 
-        $this->setLocalScopeSetters(["flow","reference","id","ports","portsChannels","portsCalls", "properties", "mapping", "manifest"]);
+        $this->setLocalScopeSetter("flow");
+        $this->setLocalScopeSetter("reference");
+        $this->setLocalScopeSetter("id");
+        $this->setLocalScopeSetter("ports");
+        $this->setLocalScopeSetter("portsChannels");
+        $this->setLocalScopeSetter("portsCalls");
+        $this->setLocalScopeSetter("properties");
+        $this->setLocalScopeSetter("mapping");
+        $this->setLocalScopeSetter("manifest");
 
         //ID
         $this->set("id", uniqid("node-", true));
@@ -76,14 +84,14 @@ class Node extends Common {
 
     /* MESSAGE MANAGMENT */
     public function __input($p_portKey, $p_stream, $p_sourceNodeId = false){
-        var_dump($this->getId(), "ports." . $p_portKey, $this->has("ports." . $p_portKey));
+        var_dump($this->get("reference") . "->__input->" . $p_portKey);
         if($this->has("ports." . $p_portKey)){
 
             $methodsToCalls = array();
 
             //INPUT EACH
             $localInputEachMethodName     = "inputEach" . ucfirst($p_portKey);
-            
+            var_dump("INPUT EACH? " . $localInputEachMethodName);
             if(method_exists($this, $localInputEachMethodName)){
 
                 $methodsToCalls[$localInputEachMethodName] = $p_stream;
@@ -106,7 +114,7 @@ class Node extends Common {
 
                         //INPUT FIRST
                         $localInputFirstMethodName        = "inputFirst" . ucfirst($p_portKey);
-                        
+                        var_dump("INPUT FIRST? " . $localInputFirstMethodName);
                         if(method_exists($this, $localInputFirstMethodName)){
 
                             $methodsToCalls[$localInputFirstMethodName] = $data[0];
@@ -114,7 +122,7 @@ class Node extends Common {
 
                         //INPUT LAST
                         $localInputLastMethodName         = "inputLast" . ucfirst($p_portKey);
-                        
+                        var_dump("INPUT LAST? " . $localInputLastMethodName);
                         if(method_exists($this, $localInputLastMethodName)){
 
                             $methodsToCalls[$localInputLastMethodName] = $data[count($data) - 1];
@@ -122,7 +130,7 @@ class Node extends Common {
 
                         //INPUT ALL
                         $localInputAllMethodName          = "inputAll" . ucfirst($p_portKey);
-                        
+                        var_dump("INPUT ALL? " . $localInputAllMethodName);
                         if(method_exists($this, $localInputAllMethodName)){
 
                             $methodsToCalls[$localInputAllMethodName] = $data;
@@ -130,7 +138,7 @@ class Node extends Common {
                     }
                 }
             }
-
+            
             if(count($methodsToCalls) == 0){
 
                 //INPUT
@@ -148,6 +156,7 @@ class Node extends Common {
             foreach($methodsToCalls as $methodName=>$params){
 
                 $portsCallsIncrement            = $this->get("portsCalls." . $p_portKey) + 1;
+
                 $this->set("portsCalls." . $p_portKey, $portsCallsIncrement);
 
                 $this->get("flow")->startTimeLine($this->get("reference") . "->" . $methodName . "[" . $this->get("portsCalls." . $p_portKey) . "]");
@@ -255,9 +264,16 @@ class Node extends Common {
         $data           = $p_params[0];
         
         //TODO: Hacer que los metodos magicos sean un array del common (has, get, set, appred, preppend, count, etc)
-        if(in_array($p_methodName, ['get', 'has', 'set'])){
+        if(in_array($p_methodName, ['get', 'has', 'set', 'find'])){
+            
+            //REQUEST PARAMS ACCESS
+            if(substr($p_params[0], 0, 7) == 'request'){
+                
+                return call_user_func_array(array($this->get("flow"), $p_methodName), $p_params);
+            }else{
 
-            return parent::__call($p_methodName, $p_params);
+                return parent::__call($p_methodName, $p_params);
+            }
         
         }else if(substr($p_methodName, 0, 4) == 'send'){
             

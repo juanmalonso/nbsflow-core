@@ -11,7 +11,7 @@ class HttpFlowApp extends FlowApp
 
         parent::__construct($p_container);
         
-        $this->server               = $p_server;
+        $this->server                           = $p_server;
 
         $this->loadPrimaryFlow();
     }
@@ -19,62 +19,94 @@ class HttpFlowApp extends FlowApp
     public function onRequest($request, $response){
 
         echo "ON REQUEST \r\n";
-        var_dump($request->server);
-        $params = array();
-        $params['METHOD']                   = strtoupper($request->getMethod());
-        $params['HEADERS']                  = $request->header;
-        $params['COOKIES']                  = $request->cookie;
-        $params['URL']                      = array();
-        $params['POST']                     = $request->post;
         
+        $params = array();
+        $params['method']                       = strtoupper($request->getMethod());
+        $params['headers']                      = $request->header;
+        $params['protocol']                     = $request->server['server_protocol'];
+        $params['uri']                          = $request->server['request_uri'];
+        $params['host']                         = $request->header['host'];
+        
+        if(!is_null($request->cookie)){
+
+            $params['cookies']                  = $request->cookie;
+        }
+
         if(!is_null($request->get)){
             
-            $params['GET']                  = $request->get;
+            $params['get']                      = $request->get;
+        }
+
+        if($request->server['request_uri'] != "/"){
+
+            $params['url']                      = $this->parseUri($request->server['request_uri']);
         }
 
         if(!is_null($request->post)){
             
-            $params['POST']                  = $request->post;
+            $params['post']                     = $request->post;
         }
 
         if(!is_null($request->files)){
 
-            $params['FILES']    = $request->files;
+            $params['files']                    = $request->files;
         }
         
         if($request->rawContent() != ""){
 
             if($this->isValidJson($request->rawContent())){
 
-                $params['JSON']             = json_decode($request->rawContent());
+                $params['json']                 = json_decode($request->rawContent());
             }else{
 
-                $params['RAW']              = $request->rawContent();
+                $params['raw']                  = $request->rawContent();
             }
         }
 
-        var_dump($params);
-        
-        $response->header("Content-Type", "text/plain");
-        /*
-        $data       = array("A","B","C");
-
         $flowEndCallBack = function ($p_result) use ($response) {
+            
+            //TODO: USAR EL OBJETO RESPONSE
+            $body                               = "";
+            if($p_result->has("type")){
 
-            $response->end(json_encode($p_result));
+                //HEADERS
+                if($p_result->has("headers")){
+
+                    //TODO: HEADERS
+                }
+
+                //WEB
+                if($p_result->get("type") == "web"){
+
+                    $response->header("Content-Type", "text/html; charset=UTF-8");
+
+                    if($p_result->has("body")){
+
+                        $body                   = $p_result->get("body");
+                    }else{
+
+                        //TODO: NO BODY
+                    }
+                }
+
+                //API
+
+
+                //FILES
+
+            }else{
+
+                //TODO: BAD RESPONSE TYPE
+            }
+
+            $response->end($body);
         };
-    
-        $this->get("primaryFlow")->start($data, $flowEndCallBack);
-        */
-        $response->end(json_encode("ASD"));
-        /*
-        $response->write("HELLO WORLD \r\n");
+
+        \Nubesys\Flow\Core\Colors::echo("Access " . $params['protocol'] . " - " . $params['host'] . " - " . $params['uri'], "green_bg+black+bold");
+        echo "\r\n";
         
-        $response->write($this->server->getWorkerId() . "\r\n");
-        $response->write($this->server->getWorkerPid() . "\r\n");
-                
-        $response->write(json_encode($this->container->get("classLoader")->getPrefixesPsr4()));
-        */
+        $this->get("primaryFlow")->start($params, $flowEndCallBack);
+        
     }
 
     public function onServerStart($server){

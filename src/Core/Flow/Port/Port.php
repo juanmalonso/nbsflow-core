@@ -9,7 +9,11 @@ class Port extends Common {
 
         parent::__construct($p_container);
 
-        $this->setLocalScopeSetters(["id","sources","targets","isStart","isEnd"]);
+        $this->setLocalScopeSetter("id");
+        $this->setLocalScopeSetter("sources");
+        $this->setLocalScopeSetter("targets");
+        $this->setLocalScopeSetter("isStart");
+        $this->setLocalScopeSetter("isEnd");
 
         echo "PORT " . $p_id . " CREATED \n";
         

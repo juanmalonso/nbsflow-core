@@ -1,0 +1,38 @@
+{
+    "nodes": [
+        {
+            "reference": "WebPage",
+            "classPath": "Nubesys\\Flow\\Core\\Flow\\Node\\Web\\WebPage",
+            "properties": {
+                "template":"default",
+                "jssources":[
+                    "https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"
+                ],
+                "csssources":[
+                    "https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css"
+                ]
+            },
+            "mapping": {}
+        }
+    ],
+    "connections": [
+        {
+            "node": "WebPage",
+            "port": "in",
+            "sources": [
+                {
+                    "start": true
+                }
+            ]
+        },
+        {
+            "node": "WebPage",
+            "port": "out",
+            "targets": [
+                {
+                    "end": true
+                }
+            ]
+        }
+    ]
+}

@@ -10,16 +10,36 @@ class Flow extends Common {
 
     private $timeLines;
 
-    function __construct($p_container, $p_schema){
+    function __construct($p_container, $p_schema, $p_flowScope = array()){
 
         parent::__construct($p_container);
 
-        $this->setLocalScopeSetters(["schema","endCallBack","nodes","ends","resultChannel","queueChannel"]);
+        $this->setLocalScopeSetter("flow");
+        $this->setLocalScopeSetter("schema");
+        $this->setLocalScopeSetter("endCallBack");
+        $this->setLocalScopeSetter("nodes");
+        $this->setLocalScopeSetter("ends");
+        $this->setLocalScopeSetter("resultChannel");
+        $this->setLocalScopeSetter("queueChannel");
+        $this->setLocalScopeSetter("type");
+        $this->setLocalScopeSetter("properties");
+        $this->setLocalScopeSetter("mapping");
 
         $this->set("schema", $p_schema);
+        $this->set("flow", $p_flowScope);
+
+        if($this->has("schema.type")){
+
+            $this->set("type", $this->get("schema.type"));
+        }else{
+
+            $this->set("type", "data");
+        }
 
         //TODO VER UNA CLASE GRAPH PARA LOS GRAFICOS DE CONCURRENCIA
         $this->timeLines                        = array();
+
+        $this->setResponseObject();
 
         $this->buildFlow();
     }
@@ -104,11 +124,30 @@ class Flow extends Common {
             }
         }
 
-        return $result;
+        if(count($result) == 1){
+
+            return $result[0];
+        }else{
+
+            return $result;
+        }
     }
 
     protected function buildFlow(){
-        
+
+        //PROPERTIES
+        if($this->has("schema.properties")){
+
+            $this->set("properties", $this->get("schema.properties"));
+        }
+
+        //MAPPING
+        if($this->has("schema.mapping")){
+
+            $this->set("mapping", $this->get("schema.mapping"));
+        }
+
+        //NODES
         if($this->has("schema.nodes")){
 
             foreach($this->get("schema.nodes") as $node){
@@ -116,7 +155,7 @@ class Flow extends Common {
                 if(isset($node['reference']) && isset($node['classPath'])){
 
                     $classPathTmp                                   = $node['classPath'];
-
+                    
                     if(class_exists($classPathTmp)){
 
                         $this->set("nodes." . $node['reference'], new $classPathTmp($this->container, $this, $node));
@@ -189,9 +228,9 @@ class Flow extends Common {
                 }
             }
         }
-
+        
         foreach($portsInstances as $nodeReference=>$ports){
-
+            
             foreach($ports as $portKey=>$portInstance){
                 
                 $this->get("nodes.".$nodeReference)->addPort($portKey, $portInstance);
@@ -202,7 +241,7 @@ class Flow extends Common {
     }
 
     public function start($p_stream, &$p_endCallBack){
-
+        
         $this->set("endCallBack", $p_endCallBack);
         
         foreach($this->get("nodes") as $nodeKey=>$nodeInstance){
@@ -228,10 +267,7 @@ class Flow extends Common {
 
             echo str_pad($key, 50) . str_repeat("░", $values['start']) . str_repeat("▓", $values['end'] - $values['start']) . "\r\n";
         }
-        
-        //TODO: APLICAR DATA MAPPING a NIVEL DE PRUERTO->METODO
-        //TODO: APLICAR DATA TRANSFORM a NIVEL DE PRUERTO->METODO
-        
+
         call_user_func($this->get("endCallBack"), $p_stream);
     }
 }

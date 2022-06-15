@@ -11,7 +11,7 @@ class FlowApp extends App
 
         parent::__construct($p_container);
 
-        $this->localScopeSetters    = array("primaryFlow");
+        $this->setLocalScopeSetter("primaryFlow");
     }
 
     protected function loadPrimaryFlow(){
@@ -22,9 +22,9 @@ class FlowApp extends App
 
                 if($prefix == $this->get("env.NBS_FLOW_LIBRARY")){
 
-                    $primaryFlowSchema                                  = $this->fileGetJsonContent($values[0] . "../../flows/" . $this->get("env.NBS_FLOW_PATH") . ".json");
+                    $flowSchemaFileContent                              = $this->fileGetJsonContent($values[0] . "../../flows/" . $this->get("env.NBS_FLOW_PATH") . ".json");
 
-                    $this->set("primaryFlow", new \Nubesys\Flow\Core\Flow\Flow($this->container, $primaryFlowSchema));
+                    $this->set("primaryFlow", new \Nubesys\Flow\Core\Flow\Flow($this->container, $flowSchemaFileContent));
                 }
             }
         }

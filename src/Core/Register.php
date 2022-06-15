@@ -7,8 +7,9 @@ class Register implements ArrayAccess
 {
     private $container = array();
 
-    public function __construct() {
-        $this->container = array();
+    public function __construct($p_container = array()) {
+        
+        $this->container = $p_container;
     }
 
     public function offsetSet($offset, $value) {
@@ -78,6 +79,7 @@ class Register implements ArrayAccess
     public function set($key, $value){
 
         if (is_null($key)) {
+            
             $this->container[] = $value;
         } else {
 
@@ -110,7 +112,15 @@ class Register implements ArrayAccess
         return $this->container;
     }
 
-    public function append($key, $value){}
+    public function find($p_path){
+
+        return (new \Flow\JSONPath\JSONPath(json_decode(json_encode($this->container),true)))->find($p_path)->getData();
+    }
+
+    public function push($value){
+
+        $this->container[] = $value;
+    }
     
     public function prepend($key, $value){}
     
